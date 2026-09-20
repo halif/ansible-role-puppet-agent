@@ -1,0 +1,24 @@
+---
+extends: default
+
+ignore: |
+  .venv/
+  .git/
+  .molecule/
+  .cache/
+  .ansible/
+  .github/workflows/
+
+rules:
+  line-length:
+    max: 120
+
+  truthy:
+    allowed-values:
+      - "true"
+      - "false"
+      - "yes"
+      - "no"
+
+  document-start:
+    present: true
