@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  role_name: puppet_agent
+  role_name: puppet-agent
   namespace: halif
 
   author: Halif
@@ -21,7 +21,7 @@ galaxy_info:
 
   galaxy_tags:
     - puppet
-    - puppet-agent
+    - puppetagent
     - configuration
     - system
     - linux
