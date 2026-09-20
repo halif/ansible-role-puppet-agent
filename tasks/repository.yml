@@ -64,6 +64,16 @@
         state: present
         update_cache: true
 
+    - name: Install Puppet YUM repository GPG key
+      ansible.builtin.rpm_key:
+        state: present
+        key: "{{ puppet_yum_repository_url }}/RPM-GPG-KEY-puppet"
+
+    - name: Install Puppet YUM repository legacy GPG key
+      ansible.builtin.rpm_key:
+        state: present
+        key: "{{ puppet_yum_repository_url }}/RPM-GPG-KEY-puppet-20250406"
+
     - name: Download Puppet YUM repository package
       ansible.builtin.get_url:
         url: "{{ puppet_release_rpm_url }}"
@@ -71,9 +81,9 @@
         mode: "0644"
 
     - name: Install Puppet YUM repository package
-      ansible.builtin.command:
-        cmd: "rpm -Uvh {{ puppet_release_rpm_path }}"
-        creates: "/etc/yum.repos.d/puppet7-release.repo"
+      ansible.builtin.dnf:
+        name: "{{ puppet_release_rpm_path }}"
+        state: present
 
     - name: Refresh DNF metadata after enabling Puppet repository
       ansible.builtin.dnf:
