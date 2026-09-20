@@ -10,7 +10,6 @@ RUN dnf -y update \
         python3 \
         sudo \
         ca-certificates \
-        curl \
         procps-ng \
         iproute \
     && dnf clean all \
