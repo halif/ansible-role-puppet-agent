@@ -1,0 +1,24 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+platforms:
+  - name: puppet-agent
+    image: "molecule-puppet-agent-ubuntu2204"
+    dockerfile: Dockerfile
+    pre_build_image: false
+    privileged: true
+    command: "/lib/systemd/systemd"
+
+provisioner:
+  name: ansible
+
+  config_options:
+    defaults:
+      interpreter_python: auto_silent
+
+verifier:
+  name: ansible
