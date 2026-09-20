@@ -1,0 +1,64 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Verify Puppet Agent package
+      ansible.builtin.assert:
+        that:
+          - "'puppet-agent' in ansible_facts.packages"
+        fail_msg: "Puppet Agent package is not installed"
+
+    - name: Verify Puppet command
+      ansible.builtin.command:
+        cmd: /opt/puppetlabs/bin/puppet --version
+      register: puppet_version_output
+      changed_when: false
+
+    - name: Verify Puppet configuration
+      ansible.builtin.slurp:
+        src: /etc/puppetlabs/puppet/puppet.conf
+      register: puppet_conf
+
+    - name: Verify Puppet configuration values
+      ansible.builtin.assert:
+        that:
+          - "('certname = ' ~ inventory_hostname) in (puppet_conf.content | b64decode)"
+          - "'server = puppet' in (puppet_conf.content | b64decode)"
+          - "'environment = production' in (puppet_conf.content | b64decode)"
+          - "'serverport = 8140' in (puppet_conf.content | b64decode)"
+        fail_msg: "Puppet Agent configuration is incorrect"
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Verify Puppet Agent service
+      ansible.builtin.assert:
+        that:
+          - "'puppet.service' in ansible_facts.services"
+          - "ansible_facts.services['puppet.service'].status == 'enabled'"
+          - "ansible_facts.services['puppet.service'].state == 'running'"
+        fail_msg: "Puppet Agent service is not running and enabled"
+
+    - name: Verify Puppet command symlink
+      ansible.builtin.stat:
+        path: /usr/local/bin/puppet
+        follow: false
+      register: puppet_symlink
+
+    - name: Assert Puppet command symlink exists
+      ansible.builtin.assert:
+        that:
+          - puppet_symlink.stat.islnk
+          - puppet_symlink.stat.lnk_target == '/opt/puppetlabs/bin/puppet'
+        fail_msg: >-
+          Puppet command symlink is not configured correctly.
+          Expected /usr/local/bin/puppet ->
+          /opt/puppetlabs/bin/puppet.
+          Actual target:
+          {{ puppet_symlink.stat.lnk_target | default('not a symlink') }}

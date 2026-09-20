@@ -1,0 +1,11 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  roles:
+    - role: puppet_agent
+      vars:
+        puppet_server: "puppet"
+        puppet_agent_certname: "{{ inventory_hostname }}"
+        puppet_environment: "production"
