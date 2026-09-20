@@ -6,19 +6,12 @@ driver:
   name: docker
 
 platforms:
-  - name: puppet-agent-ubuntu2204
+  - name: puppet-agent
     image: "molecule-puppet-agent-ubuntu2204"
-    dockerfile: Dockerfile.ubuntu2204.ubuntu2204
+    dockerfile: Dockerfile
     pre_build_image: false
     privileged: true
     command: "/lib/systemd/systemd"
-
-  - name: puppet-agent-rocky9
-    image: "molecule-puppet-agent-rocky9"
-    dockerfile: Dockerfile.ubuntu2204.rocky9
-    pre_build_image: false
-    privileged: true
-    command: "/sbin/init"
 
 provisioner:
   name: ansible
