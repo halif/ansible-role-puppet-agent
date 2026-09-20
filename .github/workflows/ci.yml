@@ -82,49 +82,53 @@ jobs:
           echo "===== Docker containers ====="
           docker ps -a
 
-          CONTAINER_ID=$(docker ps -aq --filter "name=puppet-agent")
+          CONTAINER_IDS=$(docker ps -aq --filter "name=puppet-agent")
 
-          if [ -z "$CONTAINER_ID" ]; then
-            echo "puppet-agent container not found"
+          if [ -z "$CONTAINER_IDS" ]; then
+            echo "puppet-agent containers not found"
             exit 1
           fi
 
-          echo "===== systemctl status ====="
-          docker exec "$CONTAINER_ID" \
-            systemctl status puppet --no-pager || true
+          for CONTAINER_ID in $CONTAINER_IDS; do
+            echo "===== Container: $CONTAINER_ID ====="
 
-          echo "===== systemctl cat ====="
-          docker exec "$CONTAINER_ID" \
-            systemctl cat puppet || true
+            echo "===== systemctl status ====="
+            docker exec "$CONTAINER_ID" \
+              systemctl status puppet --no-pager || true
 
-          echo "===== systemctl show ====="
-          docker exec "$CONTAINER_ID" \
-            systemctl show puppet \
-            -p ExecStart \
-            -p User \
-            -p Group \
-            -p Type \
-            -p ActiveState \
-            -p SubState \
-            --no-pager || true
+            echo "===== systemctl cat ====="
+            docker exec "$CONTAINER_ID" \
+              systemctl cat puppet || true
 
-          echo "===== journalctl ====="
-          docker exec "$CONTAINER_ID" \
-            journalctl -u puppet.service \
-            --no-pager \
-            -n 100 || true
+            echo "===== systemctl show ====="
+            docker exec "$CONTAINER_ID" \
+              systemctl show puppet \
+              -p ExecStart \
+              -p User \
+              -p Group \
+              -p Type \
+              -p ActiveState \
+              -p SubState \
+              --no-pager || true
 
-          echo "===== Puppet version ====="
-          docker exec "$CONTAINER_ID" \
-            /opt/puppetlabs/bin/puppet --version || true
+            echo "===== journalctl ====="
+            docker exec "$CONTAINER_ID" \
+              journalctl -u puppet.service \
+              --no-pager \
+              -n 100 || true
 
-          echo "===== Puppet config ====="
-          docker exec "$CONTAINER_ID" \
-            cat /etc/puppetlabs/puppet/puppet.conf || true
+            echo "===== Puppet version ====="
+            docker exec "$CONTAINER_ID" \
+              /opt/puppetlabs/bin/puppet --version || true
 
-          echo "===== Puppet processes ====="
-          docker exec "$CONTAINER_ID" \
-            ps auxww | grep -E '[p]uppet' || true
+            echo "===== Puppet config ====="
+            docker exec "$CONTAINER_ID" \
+              cat /etc/puppetlabs/puppet/puppet.conf || true
+
+            echo "===== Puppet processes ====="
+            docker exec "$CONTAINER_ID" \
+              ps auxww | grep -E '[p]uppet' || true
+          done
 
       - name: Molecule verify
         if: steps.molecule_converge.outcome == 'success'
