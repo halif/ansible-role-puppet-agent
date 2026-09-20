@@ -74,15 +74,15 @@ jobs:
           ln -s "$GITHUB_WORKSPACE" ~/.ansible/roles/puppet_agent
 
       - name: Molecule syntax
-        run: molecule -s "${{ matrix.scenario }}" syntax
+        run: molecule syntax --scenario "${{ matrix.scenario }}"
 
       - name: Molecule create
-        run: molecule -s "${{ matrix.scenario }}" create
+        run: molecule create --scenario "${{ matrix.scenario }}"
 
       - name: Molecule converge
         id: molecule_converge
         continue-on-error: true
-        run: molecule -s "${{ matrix.scenario }}" converge
+        run: molecule converge --scenario "${{ matrix.scenario }}"
 
       - name: Show Molecule diagnostics
         if: steps.molecule_converge.outcome == 'failure'
@@ -124,11 +124,11 @@ jobs:
 
       - name: Molecule verify
         if: steps.molecule_converge.outcome == 'success'
-        run: molecule -s "${{ matrix.scenario }}" verify
+        run: molecule verify --scenario "${{ matrix.scenario }}"
 
       - name: Molecule destroy
         if: always()
-        run: molecule -s "${{ matrix.scenario }}" destroy
+        run: molecule destroy --scenario "${{ matrix.scenario }}"
 
       - name: Fail Molecule job
         if: steps.molecule_converge.outcome == 'failure'
