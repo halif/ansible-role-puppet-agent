@@ -71,9 +71,9 @@
         mode: "0644"
 
     - name: Install Puppet YUM repository package
-      ansible.builtin.dnf:
-        name: "{{ puppet_release_rpm_path }}"
-        state: present
+      ansible.builtin.command:
+        cmd: "rpm -Uvh {{ puppet_release_rpm_path }}"
+        creates: "/etc/yum.repos.d/puppet7-release.repo"
 
     - name: Refresh DNF metadata after enabling Puppet repository
       ansible.builtin.dnf:
