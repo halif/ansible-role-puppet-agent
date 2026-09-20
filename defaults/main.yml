@@ -30,9 +30,13 @@ puppet_release_package_url: >-
 puppet_release_package_path: >-
   /tmp/puppet{{ puppet_version }}-release-{{ ansible_distribution_release }}.deb
 
-puppet_release_rpm_url: "https://yum.puppet.com/puppet{{ puppet_version }}-release-el-{{ ansible_distribution_major_version }}.noarch.rpm"
+puppet_release_rpm_url: >-
+  {{ puppet_yum_repository_url }}/puppet{{ puppet_version }}-release-el-{{ ansible_distribution_major_version
+  }}.noarch.rpm
 
-puppet_release_rpm_path: "/tmp/puppet{{ puppet_version }}-release-el-{{ ansible_distribution_major_version }}.noarch.rpm"
+puppet_release_rpm_path: >-
+  /tmp/puppet{{ puppet_version }}-release-el-{{ ansible_distribution_major_version
+  }}.noarch.rpm
 
 puppet_manage_repository: true
 puppet_apt_update: true
