@@ -1,9 +1,17 @@
 ---
-- name: Install Puppet Agent
+- name: Install Puppet Agent on Debian family
   ansible.builtin.apt:
     name: "{{ puppet_agent_package_name }}"
     state: present
     update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Install Puppet Agent on RedHat family
+  ansible.builtin.dnf:
+    name: "{{ puppet_agent_package_name }}"
+    state: present
+    update_cache: true
+  when: ansible_os_family == "RedHat"
 
 - name: Create Puppet command symlink
   ansible.builtin.file:
