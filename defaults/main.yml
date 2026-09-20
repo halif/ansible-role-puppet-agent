@@ -1,0 +1,37 @@
+---
+puppet_version: "7"
+
+puppet_agent_package_name: "puppet-agent"
+puppet_agent_service_name: "puppet"
+
+puppet_conf_dir: "/etc/puppetlabs/puppet"
+puppet_conf_file: "/etc/puppetlabs/puppet/puppet.conf"
+
+puppet_server: "puppet"
+puppet_server_port: 8140
+puppet_agent_certname: "{{ ansible_fqdn }}"
+puppet_environment: "production"
+
+puppet_supported_releases:
+  - focal
+  - jammy
+
+puppet_repository_url: "https://apt.puppet.com"
+puppet_repository_component: "puppet7"
+
+puppet_release_package_url: >-
+  {{ puppet_repository_url }}/puppet{{ puppet_version }}-release-{{ ansible_distribution_release }}.deb
+
+puppet_release_package_path: >-
+  /tmp/puppet{{ puppet_version }}-release-{{ ansible_distribution_release }}.deb
+
+puppet_manage_repository: true
+puppet_apt_update: true
+
+puppet_manage_service: true
+puppet_service_enabled: true
+puppet_service_state: "started"
+
+puppet_manage_command_symlink: true
+puppet_command_symlink: "/usr/local/bin/puppet"
+puppet_command_path: "/opt/puppetlabs/bin/puppet"

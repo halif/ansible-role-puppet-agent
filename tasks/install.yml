@@ -1,0 +1,13 @@
+---
+- name: Install Puppet Agent
+  ansible.builtin.apt:
+    name: "{{ puppet_agent_package_name }}"
+    state: present
+    update_cache: true
+
+- name: Create Puppet command symlink
+  ansible.builtin.file:
+    src: "{{ puppet_command_path }}"
+    dest: "{{ puppet_command_symlink }}"
+    state: link
+  when: puppet_manage_command_symlink | bool

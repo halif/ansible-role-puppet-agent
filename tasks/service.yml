@@ -1,0 +1,7 @@
+---
+- name: Ensure Puppet Agent service is enabled and running
+  ansible.builtin.systemd:
+    name: "{{ puppet_agent_service_name }}"
+    enabled: "{{ puppet_service_enabled }}"
+    state: "{{ puppet_service_state }}"
+    daemon_reload: true

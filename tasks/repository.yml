@@ -1,0 +1,41 @@
+---
+- name: Validate operating system
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution == "Ubuntu"
+      - ansible_distribution_release in puppet_supported_releases
+    fail_msg: >-
+      Unsupported operating system:
+      {{ ansible_distribution }} {{ ansible_distribution_release }}.
+      Supported Ubuntu releases:
+      {{ puppet_supported_releases | join(', ') }}
+
+- name: Install required APT packages
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - gnupg
+    state: present
+    update_cache: true
+
+- name: Download Puppet repository package
+  ansible.builtin.get_url:
+    url: "{{ puppet_release_package_url }}"
+    dest: "{{ puppet_release_package_path }}"
+    mode: "0644"
+
+- name: Install Puppet repository package
+  ansible.builtin.apt:
+    deb: "{{ puppet_release_package_path }}"
+    state: present
+
+- name: Ensure Puppet repository matches OS release
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [signed-by=/etc/apt/keyrings/puppetlabs-keyring.gpg]
+      {{ puppet_repository_url }}
+      {{ ansible_distribution_release }}
+      {{ puppet_repository_component }}
+    filename: puppet7-release
+    state: present
+    update_cache: "{{ puppet_apt_update }}"

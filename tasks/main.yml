@@ -1,0 +1,14 @@
+---
+- name: Configure Puppet repository
+  ansible.builtin.import_tasks: repository.yml
+  when: puppet_manage_repository | bool
+
+- name: Install Puppet Agent
+  ansible.builtin.import_tasks: install.yml
+
+- name: Configure Puppet Agent
+  ansible.builtin.import_tasks: configure.yml
+
+- name: Configure Puppet Agent service
+  ansible.builtin.import_tasks: service.yml
+  when: puppet_manage_service | bool

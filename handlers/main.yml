@@ -1,0 +1,5 @@
+---
+- name: Restart puppet agent
+  ansible.builtin.systemd:
+    name: "{{ puppet_agent_service_name }}"
+    state: restarted
