@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  role_name: puppet-agent
+  role_name: puppet_agent
   namespace: halif
 
   author: Halif
