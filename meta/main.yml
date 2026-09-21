@@ -6,7 +6,7 @@ galaxy_info:
   author: Halif
   description: >-
     Install and configure the open-source Puppet Agent 7
-    on supported Ubuntu systems.
+    on supported Ubuntu and RedHat family systems.
   company: ""
 
   license: MIT
@@ -18,13 +18,21 @@ galaxy_info:
       versions:
         - focal
         - jammy
+    - name: EL
+      versions:
+        - "8"
+        - "9"
 
   galaxy_tags:
     - puppet
     - puppetagent
+    - agent
     - configuration
     - system
     - linux
     - ubuntu
+    - redhat
+    - rhel
+    - rocky
 
 dependencies: []

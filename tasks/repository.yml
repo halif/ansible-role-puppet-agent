@@ -2,40 +2,89 @@
 - name: Validate operating system
   ansible.builtin.assert:
     that:
-      - ansible_distribution == "Ubuntu"
-      - ansible_distribution_release in puppet_supported_releases
+      - >-
+        (ansible_os_family == "Debian"
+        and ansible_distribution == "Ubuntu"
+        and ansible_distribution_release in puppet_supported_ubuntu_releases)
+        or
+        (ansible_os_family == "RedHat"
+        and ansible_distribution_major_version in puppet_supported_redhat_major_versions)
     fail_msg: >-
       Unsupported operating system:
-      {{ ansible_distribution }} {{ ansible_distribution_release }}.
+      {{ ansible_distribution }} {{ ansible_distribution_version }}.
       Supported Ubuntu releases:
-      {{ puppet_supported_releases | join(', ') }}
+      {{ puppet_supported_ubuntu_releases | join(', ') }}.
+      Supported RedHat family releases:
+      {{ puppet_supported_redhat_major_versions | join(', ') }}.
 
-- name: Install required APT packages
-  ansible.builtin.apt:
-    name:
-      - ca-certificates
-      - gnupg
-    state: present
-    update_cache: true
+- name: Configure Puppet repository on Ubuntu
+  when:
+    - ansible_distribution == "Ubuntu"
+    - puppet_manage_repository | bool
+  block:
+    - name: Install required APT packages
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - gnupg
+        state: present
+        update_cache: true
 
-- name: Download Puppet repository package
-  ansible.builtin.get_url:
-    url: "{{ puppet_release_package_url }}"
-    dest: "{{ puppet_release_package_path }}"
-    mode: "0644"
+    - name: Download Puppet APT repository package
+      ansible.builtin.get_url:
+        url: "{{ puppet_release_package_url }}"
+        dest: "{{ puppet_release_package_path }}"
+        mode: "0644"
 
-- name: Install Puppet repository package
-  ansible.builtin.apt:
-    deb: "{{ puppet_release_package_path }}"
-    state: present
+    - name: Install Puppet APT repository package
+      ansible.builtin.apt:
+        deb: "{{ puppet_release_package_path }}"
+        state: present
 
-- name: Ensure Puppet repository matches OS release
-  ansible.builtin.apt_repository:
-    repo: >-
-      deb [signed-by=/etc/apt/keyrings/puppetlabs-keyring.gpg]
-      {{ puppet_repository_url }}
-      {{ ansible_distribution_release }}
-      {{ puppet_repository_component }}
-    filename: puppet7-release
-    state: present
-    update_cache: "{{ puppet_apt_update }}"
+    - name: Ensure Puppet APT repository matches OS release
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [signed-by=/etc/apt/keyrings/puppetlabs-keyring.gpg]
+          {{ puppet_repository_url }}
+          {{ ansible_distribution_release }}
+          {{ puppet_repository_component }}
+        filename: puppet7-release
+        state: present
+        update_cache: "{{ puppet_apt_update }}"
+
+- name: Configure Puppet repository on RedHat family
+  when:
+    - ansible_os_family == "RedHat"
+    - puppet_manage_repository | bool
+  block:
+    - name: Install required DNF packages
+      ansible.builtin.dnf:
+        name:
+          - ca-certificates
+        state: present
+        update_cache: true
+
+    - name: Install Puppet YUM repository GPG key
+      ansible.builtin.rpm_key:
+        state: present
+        key: "{{ puppet_yum_repository_url }}/RPM-GPG-KEY-puppet"
+
+    - name: Install Puppet YUM repository legacy GPG key
+      ansible.builtin.rpm_key:
+        state: present
+        key: "{{ puppet_yum_repository_url }}/RPM-GPG-KEY-puppet-20250406"
+
+    - name: Download Puppet YUM repository package
+      ansible.builtin.get_url:
+        url: "{{ puppet_release_rpm_url }}"
+        dest: "{{ puppet_release_rpm_path }}"
+        mode: "0644"
+
+    - name: Install Puppet YUM repository package
+      ansible.builtin.dnf:
+        name: "{{ puppet_release_rpm_path }}"
+        state: present
+
+    - name: Refresh DNF metadata after enabling Puppet repository
+      ansible.builtin.dnf:
+        update_cache: "{{ puppet_dnf_update }}"
