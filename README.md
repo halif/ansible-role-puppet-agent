@@ -1,7 +1,6 @@
 # ansible-role-puppet-agent
 
 [![CI](https://github.com/ildar/ansible-role-puppet-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/ildar/ansible-role-puppet-agent/actions/workflows/ci.yml)
-[![Ansible Galaxy](https://img.shields.io/badge/Ansible%20Galaxy-ildar.puppet__agent-blue)](https://galaxy.ansible.com/ildar/puppet_agent)
 [![Molecule](https://img.shields.io/badge/tested%20with-Molecule-blueviolet)](https://molecule.readthedocs.io/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
