@@ -136,7 +136,6 @@
         state: present
 
     - name: Refresh Zypper metadata after enabling Puppet repository
-      community.general.zypper:
-        name: "*"
-        state: present
-        update_cache: true
+      community.general.zypper_repository:
+        repo: "*"
+        runrefresh: true
