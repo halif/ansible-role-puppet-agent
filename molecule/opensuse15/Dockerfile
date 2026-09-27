@@ -5,8 +5,7 @@ ENV container=docker
 RUN zypper --non-interactive refresh \
     && zypper --non-interactive install --no-recommends \
         systemd \
-        python3 \
-        python3-xml \
+        python311 \
         sudo \
         ca-certificates \
     && zypper clean --all
