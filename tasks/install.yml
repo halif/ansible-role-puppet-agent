@@ -19,3 +19,10 @@
     dest: "{{ puppet_command_symlink }}"
     state: link
   when: puppet_manage_command_symlink | bool
+
+- name: Install Puppet Agent on Suse family
+  community.general.zypper:
+    name: "{{ puppet_agent_package_name }}"
+    state: present
+    update_cache: true
+  when: ansible_os_family == "Suse"

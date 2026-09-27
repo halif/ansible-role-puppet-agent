@@ -88,3 +88,42 @@
     - name: Refresh DNF metadata after enabling Puppet repository
       ansible.builtin.dnf:
         update_cache: "{{ puppet_dnf_update }}"
+
+- name: Configure Puppet repository on Suse family
+  when:
+    - ansible_os_family == "Suse"
+    - puppet_manage_repository | bool
+  block:
+    - name: Install required Zypper packages
+      community.general.zypper:
+        name:
+          - ca-certificates
+        state: present
+        update_cache: true
+
+    - name: Install Puppet YUM repository GPG key
+      ansible.builtin.rpm_key:
+        state: present
+        key: "{{ puppet_yum_repository_url }}/RPM-GPG-KEY-puppet"
+
+    - name: Install Puppet YUM repository legacy GPG key
+      ansible.builtin.rpm_key:
+        state: present
+        key: "{{ puppet_yum_repository_url }}/RPM-GPG-KEY-puppet-20250406"
+
+    - name: Download Puppet SLES repository package
+      ansible.builtin.get_url:
+        url: "{{ puppet_suse_repository_package_url }}"
+        dest: "{{ puppet_suse_repository_package_path }}"
+        mode: "0644"
+
+    - name: Install Puppet SLES repository package
+      community.general.zypper:
+        name: "{{ puppet_suse_repository_package_path }}"
+        state: present
+
+    - name: Refresh Zypper metadata after enabling Puppet repository
+      community.general.zypper:
+        name: "*"
+        state: present
+        update_cache: true
