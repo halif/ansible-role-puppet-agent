@@ -3,12 +3,23 @@
   ansible.builtin.assert:
     that:
       - >-
-        (ansible_os_family == "Debian"
-        and ansible_distribution == "Ubuntu"
-        and ansible_distribution_release in puppet_supported_ubuntu_releases)
+        (
+          ansible_os_family == "Debian"
+          and ansible_distribution == "Ubuntu"
+          and ansible_distribution_release in puppet_supported_ubuntu_releases
+        )
         or
-        (ansible_os_family == "RedHat"
-        and ansible_distribution_major_version in puppet_supported_redhat_major_versions)
+        (
+          ansible_os_family == "RedHat"
+          and ansible_distribution_major_version
+          in puppet_supported_redhat_major_versions
+        )
+        or
+        (
+          ansible_os_family == "Suse"
+          and ansible_distribution == "openSUSE Leap"
+          and ansible_distribution_version in puppet_supported_suse_releases
+        )
     fail_msg: >-
       Unsupported operating system:
       {{ ansible_distribution }} {{ ansible_distribution_version }}.
@@ -16,6 +27,8 @@
       {{ puppet_supported_ubuntu_releases | join(', ') }}.
       Supported RedHat family releases:
       {{ puppet_supported_redhat_major_versions | join(', ') }}.
+      Supported openSUSE releases:
+      {{ puppet_supported_suse_releases | join(', ') }}.
 
 - name: Configure Puppet repository on Ubuntu
   when:
