@@ -100,11 +100,21 @@
       ansible.builtin.debug:
         msg: "resolved_target={{ puppet_symlink_target.stdout }}"
 
+    - name: Resolve Puppet command symlink
+      ansible.builtin.command:
+        cmd: readlink -f /usr/local/bin/puppet
+      register: puppet_symlink_target
+      changed_when: false
+
+    - name: Show resolved Puppet command symlink
+      ansible.builtin.debug:
+        msg: "resolved_target={{ puppet_symlink_target.stdout }}"
+
     - name: Verify resolved Puppet command symlink
       ansible.builtin.assert:
         that:
-          - puppet_symlink_target.stdout == '/opt/puppetlabs/bin/puppet'
+          - puppet_symlink_target.stdout == '/opt/puppetlabs/puppet/bin/wrapper.sh'
         fail_msg: >-
           Puppet command symlink resolves to
           {{ puppet_symlink_target.stdout }},
-          expected /opt/puppetlabs/bin/puppet
+          expected /opt/puppetlabs/puppet/bin/wrapper.sh
