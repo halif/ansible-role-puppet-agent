@@ -5,3 +5,5 @@
 
   roles:
     - role: puppet_agent
+      vars: 
+        puppet_agent_certname: puppet
