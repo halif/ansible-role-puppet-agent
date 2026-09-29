@@ -6,6 +6,7 @@ RUN zypper --non-interactive refresh \
     && zypper --non-interactive install --no-recommends \
         systemd \
         python311 \
+        python311-rpm \
         sudo \
         ca-certificates \
     && zypper clean --all
