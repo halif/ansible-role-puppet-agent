@@ -32,6 +32,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install ansible-core ansible-lint yamllint
 
+      - name: Install Ansible collections
+        run: ansible-galaxy collection install -r requirements.yml
+
       - name: Run yamllint
         run: yamllint -c .config/yamllint.yml .
 
@@ -53,6 +56,9 @@ jobs:
           - scenario: rocky9
             container_name: puppet-agent-rocky9
 
+          - scenario: opensuse15
+            container_name: puppet-agent-opensuse15
+
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -67,6 +73,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install ansible-core molecule
           pip install molecule-plugins[docker]
+
+      - name: Install Ansible collections
+        run: ansible-galaxy collection install -r requirements.yml
 
       - name: Make role available to Ansible
         run: |

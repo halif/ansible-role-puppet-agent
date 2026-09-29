@@ -1,0 +1,24 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+platforms:
+  - name: puppet-agent-opensuse15
+    image: molecule-puppet-agent-opensuse15
+    dockerfile: Dockerfile
+    pre_build_image: false
+    privileged: true
+    command: "/sbin/init"
+
+provisioner:
+  name: ansible
+
+  config_options:
+    defaults:
+      interpreter_python: /usr/bin/python3.11
+
+verifier:
+  name: ansible

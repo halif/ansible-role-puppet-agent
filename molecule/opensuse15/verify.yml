@@ -1,0 +1,120 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: rpm
+
+    - name: Verify Puppet Agent package
+      ansible.builtin.assert:
+        that:
+          - "'puppet-agent' in ansible_facts.packages"
+        fail_msg: "puppet-agent package is not installed"
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Verify Puppet Agent service
+      ansible.builtin.assert:
+        that:
+          - "'puppet.service' in ansible_facts.services"
+          - ansible_facts.services['puppet.service'].state == 'running'
+          - ansible_facts.services['puppet.service'].status == 'enabled'
+        fail_msg: "Puppet Agent service is not running and enabled"
+
+    - name: Check Puppet configuration directory
+      ansible.builtin.stat:
+        path: /etc/puppetlabs/puppet
+      register: puppet_conf_dir
+
+    - name: Verify Puppet configuration directory
+      ansible.builtin.assert:
+        that:
+          - puppet_conf_dir.stat.exists
+          - puppet_conf_dir.stat.isdir
+
+    - name: Check puppet.conf
+      ansible.builtin.stat:
+        path: /etc/puppetlabs/puppet/puppet.conf
+      register: puppet_conf
+
+    - name: Verify puppet.conf
+      ansible.builtin.assert:
+        that:
+          - puppet_conf.stat.exists
+          - puppet_conf.stat.isreg
+
+    - name: Read Puppet certname
+      ansible.builtin.command:
+        cmd: /opt/puppetlabs/bin/puppet config print certname
+      register: puppet_certname
+      changed_when: false
+
+    - name: Verify Puppet certname
+      ansible.builtin.assert:
+        that:
+          - puppet_certname.stdout | trim == 'puppet'
+
+    - name: Check Puppet executable
+      ansible.builtin.stat:
+        path: /opt/puppetlabs/bin/puppet
+      register: puppet_binary
+
+    - name: Verify Puppet executable
+      ansible.builtin.assert:
+        that:
+          - puppet_binary.stat.exists
+          - puppet_binary.stat.executable
+
+    - name: Check Puppet command symlink
+      ansible.builtin.stat:
+        path: /usr/local/bin/puppet
+      register: puppet_symlink
+
+    - name: Show Puppet command symlink
+      ansible.builtin.debug:
+        msg:
+          - "exists={{ puppet_symlink.stat.exists }}"
+          - "islnk={{ puppet_symlink.stat.islnk }}"
+          - "lnk_source={{ puppet_symlink.stat.lnk_source | default('undefined') }}"
+
+    - name: Verify Puppet command symlink
+      ansible.builtin.assert:
+        that:
+          - puppet_symlink.stat.exists
+          - puppet_symlink.stat.islnk
+        fail_msg: >-
+          Puppet command symlink is missing or is not a symbolic link:
+          {{ puppet_symlink.stat.lnk_source | default('undefined') }}
+
+    - name: Resolve Puppet command symlink
+      ansible.builtin.command:
+        cmd: readlink -f /usr/local/bin/puppet
+      register: puppet_symlink_target
+      changed_when: false
+
+    - name: Show resolved Puppet command symlink
+      ansible.builtin.debug:
+        msg: "resolved_target={{ puppet_symlink_target.stdout }}"
+
+    - name: Resolve Puppet command symlink
+      ansible.builtin.command:
+        cmd: readlink -f /usr/local/bin/puppet
+      register: puppet_symlink_target
+      changed_when: false
+
+    - name: Show resolved Puppet command symlink
+      ansible.builtin.debug:
+        msg: "resolved_target={{ puppet_symlink_target.stdout }}"
+
+    - name: Verify resolved Puppet command symlink
+      ansible.builtin.assert:
+        that:
+          - puppet_symlink_target.stdout == '/opt/puppetlabs/puppet/bin/wrapper.sh'
+        fail_msg: >-
+          Puppet command symlink resolves to
+          {{ puppet_symlink_target.stdout }},
+          expected /opt/puppetlabs/puppet/bin/wrapper.sh

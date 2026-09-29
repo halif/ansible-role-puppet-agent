@@ -20,9 +20,18 @@ puppet_supported_redhat_major_versions:
   - "8"
   - "9"
 
+puppet_supported_suse_releases:
+  - "15.6"
+
 puppet_repository_url: "https://apt.puppet.com"
 puppet_repository_component: "puppet7"
 puppet_yum_repository_url: "https://yum.puppet.com"
+
+puppet_suse_repository_package_url: >-
+  {{ puppet_yum_repository_url }}/puppet{{ puppet_version }}-release-sles-15.noarch.rpm
+
+puppet_suse_repository_package_path: >-
+  /tmp/puppet{{ puppet_version }}-release-sles-15.noarch.rpm
 
 puppet_release_package_url: >-
   {{ puppet_repository_url }}/puppet{{ puppet_version }}-release-{{ ansible_distribution_release }}.deb
